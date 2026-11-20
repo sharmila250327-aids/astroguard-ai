@@ -1,0 +1,33 @@
+# Python Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local runtime logs
+*.log
+server_out.log
+server_err.log
+
+# Redundant nested workspace copy
+astroguard-ai-final/
+
+# Local environment configurations
+.env
+.env.local
+.env.*.local
+
+# Vercel deployment cache
+.vercel/
+
+# Editor & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

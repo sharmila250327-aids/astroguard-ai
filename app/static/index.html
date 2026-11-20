@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060b14">
+  <title>AstroGuard AI — Weather & Disaster Risk Intelligence Platform</title>
+
+  <!-- Google Fonts: Space Grotesk & DM Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Leaflet CSS & Chart.js -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+
+<body class="dark-theme">
+
+  <!-- DYNAMIC WEATHER ATMOSPHERE: RAINDROPS, DRIFTING VOLUMETRIC CLOUDS & BREEZE -->
+  <canvas id="weatherAtmosphereCanvas" class="weather-canvas"></canvas>
+  <div class="weather-atmosphere-overlay"></div>
+
+  <!-- ============================================================== -->
+  <!-- 1. LANDING & ROLE-BASED LOGIN SCREEN                           -->
+  <!-- ============================================================== -->
+  <div id="authView" class="auth-wrapper">
+    <div class="auth-backdrop"></div>
+    <div class="auth-container">
+      <div class="auth-top-action" style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+        <button class="btn-back-to-dashboard" onclick="returnToDashboard()"
+          style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);color:white;padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:pointer;">
+          <i data-lucide="layout-dashboard"></i> Return to Live Dashboard
+        </button>
+      </div>
+      <header class="auth-header">
+        <div class="brand-badge">
+          <i data-lucide="shield-alert" class="brand-icon"></i>
+          <span>EARTH OBSERVATION & THREAT INTELLIGENCE</span>
+        </div>
+        <h1 class="auth-title">ASTROGUARD <span class="accent-cyan">AI</span></h1>
+        <p class="auth-subtitle">AI-Based Weather and Disaster Risk Intelligence Platform</p>
+        <p class="auth-desc">Select your authorized workspace to access real-time Doppler rainfall telemetry,
+          experimental risk screening, and emergency coordination grids.</p>
+      </header>
+
+      <div class="role-grid">
+        <!-- 1. PUBLIC / CITIZEN CARD -->
+        <div class="role-card" id="card-public">
+          <div class="role-card-header">
+            <div class="role-icon-box public">
+              <i data-lucide="users"></i>
+            </div>
+            <div class="role-badge">COMMUNITY</div>
+          </div>
+          <h3>Public / Citizen</h3>
+          <p class="role-desc">Monitor local rainfall forecasts, experimental flood & landslide screening, find safer
+            nearby sectors, and manage family emergency alerts.</p>
+
+          <form class="role-login-form" onsubmit="handleLoginSubmit(event, 'public')">
+            <div class="input-wrap">
+              <i data-lucide="mail"></i>
+              <input type="email" id="email-public" placeholder="Citizen email" value="public@astroguard.ai" required>
+            </div>
+            <div class="input-wrap">
+              <i data-lucide="lock"></i>
+              <input type="password" id="pass-public" placeholder="Password" value="DemoPublic123!" required>
+            </div>
+            <button type="submit" class="btn-role-action public">Sign In as Citizen</button>
+          </form>
+
+          <div class="role-card-footer">
+            <button class="btn-guest" onclick="handleGuestLogin('public')">
+              <i data-lucide="zap"></i> One-Click Demo Access
+            </button>
+            <span class="auth-alt-link" onclick="openRegisterModal()">New citizen? Register</span>
+          </div>
+        </div>
+
+        <!-- 2. RESCUE TEAM CARD -->
+        <div class="role-card featured" id="card-rescue">
+          <div class="role-card-header">
+            <div class="role-icon-box rescue">
+              <i data-lucide="life-buoy"></i>
+            </div>
+            <div class="role-badge rescue">FIRST RESPONDERS</div>
+          </div>
+          <h3>Rescue Team</h3>
+          <p class="role-desc">Tactical field triage, live emergency report stream, squad unit deployment, affected
+            sector mapping, and rapid evacuation assistance.</p>
+
+          <form class="role-login-form" onsubmit="handleLoginSubmit(event, 'rescue')">
+            <div class="input-wrap">
+              <i data-lucide="mail"></i>
+              <input type="email" id="email-rescue" placeholder="Official team email" value="rescue@astroguard.ai"
+                required>
+            </div>
+            <div class="input-wrap">
+              <i data-lucide="lock"></i>
+              <input type="password" id="pass-rescue" placeholder="Official password" value="DemoRescue123!" required>
+            </div>
+            <button type="submit" class="btn-role-action rescue">Sign In to Rescue Command</button>
+          </form>
+
+          <div class="role-card-footer">
+            <button class="btn-guest rescue" onclick="handleGuestLogin('rescue')">
+              <i data-lucide="zap"></i> Rescue Team Demo Access
+            </button>
+            <small class="cred-hint">Official Account: <code>rescue@astroguard.ai</code></small>
+          </div>
+        </div>
+
+        <!-- 3. COLLECTOR / MUNICIPALITY CARD -->
+        <div class="role-card" id="card-collector">
+          <div class="role-card-header">
+            <div class="role-icon-box collector">
+              <i data-lucide="landmark"></i>
+            </div>
+            <div class="role-badge collector">AUTHORITY DEOC</div>
+          </div>
+          <h3>Collector / Municipality</h3>
+          <p class="role-desc">District-level strategic oversight, public alert broadcasting, shelter capacity
+            logistics, incident verification, and official CSV data import.</p>
+
+          <form class="role-login-form" onsubmit="handleLoginSubmit(event, 'collector')">
+            <div class="input-wrap">
+              <i data-lucide="mail"></i>
+              <input type="email" id="email-collector" placeholder="Official administrative email"
+                value="collector@district.gov.in" required>
+            </div>
+            <div class="input-wrap">
+              <i data-lucide="lock"></i>
+              <input type="password" id="pass-collector" placeholder="Administrative password" value="DemoAdmin123!"
+                required>
+            </div>
+            <button type="submit" class="btn-role-action collector">Sign In to Executive DEOC</button>
+          </form>
+
+          <div class="role-card-footer">
+            <button class="btn-guest collector" onclick="handleGuestLogin('collector')">
+              <i data-lucide="zap"></i> Collector Demo Access
+            </button>
+            <small class="cred-hint">Govt Approval: <code>collector@district.gov.in</code></small>
+          </div>
+        </div>
+      </div>
+
+      <footer class="auth-legal">
+        <span>AstroGuard AI Decision Support & Weather Risk Intelligence · Open-Meteo & NASA POWER Integrated</span>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- 2. MAIN APPLICATION SHELL (AFTER LOGIN)                        -->
+  <!-- ============================================================== -->
+  <div id="appShell" class="app-shell hidden">
+    <!-- TOP TELEMETRY HUD -->
+    <header class="top-nav">
+      <div class="nav-left-group">
+        <button class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Navigation Sidebar">
+          <i data-lucide="menu"></i>
+        </button>
+        <div class="nav-brand">
+          <div class="brand-logo-hex">
+            <i data-lucide="cloud-rain"></i>
+          </div>
+          <div class="brand-text-block">
+            <div class="brand-name">ASTROGUARD <span class="cyan">AI</span></div>
+            <div class="brand-sub">WEATHER RISK INTELLIGENCE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOCATION SEARCH BAR -->
+      <div class="top-search-wrap">
+        <i data-lucide="search" class="search-ico"></i>
+        <input type="text" id="topSearchInput" placeholder="Search city or district (e.g. Viluppuram, Chennai)..."
+          autocomplete="off">
+        <button class="btn-search-act" onclick="triggerSearch()">SEARCH</button>
+        <button class="btn-gps-act" onclick="autoDetectLocation()" title="Detect current GPS location">
+          <i data-lucide="crosshair"></i> GPS
+        </button>
+        <div id="topSearchResults" class="search-dropdown-menu"></div>
+      </div>
+
+      <!-- RIGHT STATUS CHIPS & PROFILE -->
+      <div class="nav-right">
+        <div class="weather-mode-pill font-mono" title="Live Raindrops, Overcast Clouds & Wind Breeze Engine">
+          <span class="rain-cloud-ico pulse-dot" style="background:#38bdf8;"></span>
+          <span id="topWeatherMood">🌧️ RAIN & BREEZY</span>
+        </div>
+        <div class="live-clock font-mono" id="navClock">--:--:-- UTC</div>
+
+        <!-- SWITCH ROLE QUICK BUTTON -->
+        <button class="btn-role-switcher-top" onclick="showAuthView()" title="Switch Workspace Role or Sign In">
+          <i data-lucide="users-round"></i>
+          <span>Switch Role</span>
+        </button>
+
+        <!-- NOTIFICATION BELL -->
+        <div class="notification-bell-wrap" onclick="toggleNotificationDropdown()">
+          <button class="btn-nav-icon">
+            <i data-lucide="bell"></i>
+          </button>
+          <span class="bell-badge hidden" id="unreadBadge">0</span>
+          <!-- DROPDOWN INBOX -->
+          <div id="notifDropdown" class="notif-dropdown hidden">
+            <div class="notif-dropdown-head">
+              <strong>Notifications & Advisories</strong>
+              <button onclick="markAllNotificationsRead(event)">Mark all read</button>
+            </div>
+            <div id="notifListWrap" class="notif-dropdown-list">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- USER PROFILE CHIP -->
+        <div class="user-chip-top">
+          <div class="user-avatar" id="navAvatar">U</div>
+          <div class="user-meta-top">
+            <span class="user-name" id="navUserName">Public Citizen</span>
+            <small class="user-role-tag" id="navUserRole">PUBLIC PORTAL</small>
+          </div>
+          <button class="btn-logout" onclick="performLogout()" title="Sign Out">
+            <i data-lucide="log-out"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="app-body">
+      <!-- SIDEBAR BACKDROP FOR MOBILE -->
+      <div id="sidebarBackdrop" class="sidebar-backdrop" onclick="toggleSidebar()"></div>
+
+      <!-- ============================================================== -->
+      <!-- SIDEBAR (ROLE-AWARE DYNAMIC NAVIGATION)                        -->
+      <!-- ============================================================== -->
+      <aside class="sidebar" id="mainSidebar">
+        <div class="sidebar-brand-header">
+          <div class="sb-brand-chip">
+            <span class="pulse-dot"></span>
+            <span class="sb-brand-title">MISSION NAVIGATION</span>
+          </div>
+          <button class="btn-sidebar-close" onclick="toggleSidebar()" title="Close Navigation">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="sidebar-role-indicator">
+          <div class="role-pill-display" id="sidebarRolePill">
+            <i data-lucide="shield-check" class="text-cyan"></i>
+            <span id="sidebarRoleName">Public Citizen</span>
+          </div>
+          <button class="btn-switch-role-sm" onclick="showAuthView()" title="Switch Workspace Role">
+            <i data-lucide="arrow-left-right"></i> Switch
+          </button>
+        </div>
+
+        <!-- RENDERED DYNAMICALLY BASED ON CURRENT USER ROLE -->
+        <div class="sidebar-menu" id="sidebarMenu">
+          <button class="sb-link active" onclick="switchPublicSection('section-overview', this)"><i
+              data-lucide="layout-grid"></i> Overview</button>
+          <button class="sb-link" onclick="switchPublicSection('weatherMainCard', this)"><i data-lucide="sun"></i>
+            Weather</button>
+          <button class="sb-link" onclick="switchPublicSection('hourlyStrip', this)"><i data-lucide="cloud-rain"></i>
+            Rainfall Forecast</button>
+          <button class="sb-link" onclick="switchPublicSection('section-history', this)"><i data-lucide="calendar"></i>
+            Historical Data</button>
+          <button class="sb-link" onclick="switchPublicSection('section-landslides', this)"><i
+              data-lucide="mountain"></i> Landslide History</button>
+          <button class="sb-link" onclick="switchPublicSection('section-floods', this)"><i data-lucide="waves"></i>
+            Flood History</button>
+          <button class="sb-link" onclick="switchPublicSection('section-risk', this)"><i data-lucide="shield-alert"></i>
+            Risk Analysis</button>
+          <button class="sb-link" onclick="switchPublicSection('section-map', this)"><i data-lucide="map"></i>
+            Map</button>
+          <button class="sb-link" onclick="switchPublicSection('section-safer', this)"><i data-lucide="compass"></i>
+            Safer Areas</button>
+          <button class="sb-link" onclick="switchPublicSection('section-family', this)"><i data-lucide="users"></i>
+            Family Contacts</button>
+          <button class="sb-link" onclick="switchPublicSection('globalAlertBanner', this)"><i data-lucide="bell"></i>
+            Notifications</button>
+          <button class="sb-link" onclick="openReportModal()"><i data-lucide="file-plus"></i> My Reports</button>
+          <button class="sb-link" onclick="switchPublicSection('section-reviews', this)"><i data-lucide="star"></i> My
+            Reviews</button>
+          <button class="sb-link" onclick="showAuthView()"><i data-lucide="users-round"></i> Switch Role</button>
+          <button class="sb-link" onclick="performLogout()"><i data-lucide="log-out"></i> Logout</button>
+        </div>
+
+        <div class="sidebar-bottom-card">
+          <div class="sidebar-district-pill">
+            <span class="pulse-dot"></span>
+            <span id="sidebarLocationLabel">Viluppuram Sector</span>
+          </div>
+          <small class="sidebar-coords font-mono" id="sidebarCoords">11.9401° N, 79.4861° E</small>
+        </div>
+      </aside>
+
+      <!-- ============================================================== -->
+      <!-- MAIN WORKSPACE CONTENT CONTAINER                               -->
+      <!-- ============================================================== -->
+      <main class="main-viewport" id="mainViewport">
+        <!-- GLOBAL EMERGENCY BULLETIN BANNER -->
+        <div id="globalAlertBanner" class="global-bulletin-container"></div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW A: PUBLIC CITIZEN DASHBOARD                               -->
+        <!-- ============================================================== -->
+        <div id="view-public" class="workspace-view active">
+          <!-- ROLE PREVIEW BANNER -->
+          <div id="rolePreviewBanner" class="role-preview-banner hidden" style="background:linear-gradient(90deg, #1e3a8a, #0369a1);border:1px solid #38bdf8;color:white;padding:12px 18px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <i data-lucide="shield-alert" style="color:#38bdf8;"></i>
+              <span>Viewing Public Citizen Portal as <strong id="previewRoleName">Officer</strong></span>
+            </div>
+            <button type="button" onclick="returnToActiveRoleDashboard()" style="background:#38bdf8;color:#081122;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;">
+              Return to Command Hub &rarr;
+            </button>
+          </div>
+
+          <!-- WELCOME HERO BANNER -->
+          <section class="welcome-hero-card">
+            <div class="welcome-copy">
+              <h2>Welcome to AstroGuard AI</h2>
+              <p>Monitor weather and understand rainfall-related risks around your location.</p>
+
+              <!-- LARGE MAIN DASHBOARD SEARCH BOX (PROMPT REQUIREMENT #3) -->
+              <div class="hero-large-search">
+                <div class="hero-search-input-wrap">
+                  <i data-lucide="search" class="hero-search-ico"></i>
+                  <input type="text" id="heroSearchInput"
+                    placeholder="Search any city, district or town (e.g. Viluppuram, Chennai, Poonamallee)..."
+                    autocomplete="off">
+                  <button class="btn-hero-search" onclick="triggerHeroSearch()">Search Location</button>
+                  <button class="btn-hero-gps" onclick="autoDetectLocation()" title="Detect current GPS location">
+                    <i data-lucide="crosshair"></i> Use My GPS
+                  </button>
+                </div>
+                <div id="heroSearchResults" class="hero-search-dropdown-menu"></div>
+              </div>
+
+              <div class="current-sector-tag">
+                <i data-lucide="map-pin"></i>
+                <span>Active Location: <strong id="heroSelectedLocation">Viluppuram, Tamil Nadu, India</strong></span>
+              </div>
+            </div>
+            <div class="hero-quick-actions">
+              <button class="btn-action-hero" onclick="switchPublicSection('weatherMainCard')">
+                <i data-lucide="cloud-lightning"></i> Weather Details
+              </button>
+              <button class="btn-action-hero" onclick="switchPublicSection('section-map')">
+                <i data-lucide="map"></i> Explore Map
+              </button>
+              <button class="btn-action-hero danger" onclick="openReportModal()">
+                <i data-lucide="alert-octagon"></i> Submit Incident Report
+              </button>
+            </div>
+          </section>
+
+          <!-- 1. OVERVIEW & WEATHER SECTION (MATCHING REFERENCE UI) -->
+          <section id="section-overview" class="content-section">
+            <div class="weather-hero-grid">
+              <!-- MAIN WEATHER FEATURE CARD -->
+              <div class="weather-card-main glass-card" id="weatherMainCard">
+                <div class="weather-card-top">
+                  <div>
+                    <span class="weather-location-label" id="wCardLoc">Viluppuram, Tamil Nadu</span>
+                    <h3 class="weather-date-label" id="wCardDate">Loading current conditions...</h3>
+                  </div>
+                  <div class="weather-condition-pill" id="wConditionPill">
+                    <i data-lucide="cloud-rain" id="wConditionIcon"></i>
+                    <span id="wConditionText">Light Rain</span>
+                  </div>
+                </div>
+
+                <div class="weather-temp-hero">
+                  <div class="temp-huge font-mono" id="wTemp">28°C</div>
+                  <div class="temp-sub-meta">
+                    <span class="temp-feels" id="wFeels">Feels like 31°C</span>
+                    <div class="temp-hl" id="wHighLow">H: 32°C · L: 24°C</div>
+                  </div>
+                </div>
+
+                <div class="weather-metrics-grid">
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="droplets"></i> Current Rainfall</span>
+                    <strong class="font-mono" id="wRainNow">0.0 mm</strong>
+                  </div>
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="cloud-rain"></i> Rain Probability</span>
+                    <strong class="font-mono text-cyan" id="wRainProb">25%</strong>
+                  </div>
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="gauge"></i> Humidity</span>
+                    <strong class="font-mono" id="wHumidity">72%</strong>
+                  </div>
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="wind"></i> Wind Speed</span>
+                    <strong class="font-mono" id="wWind">14 km/h</strong>
+                  </div>
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="layers"></i> Soil Moisture</span>
+                    <strong class="font-mono text-emerald" id="wSoilMoisture">0.28 m³/m³</strong>
+                  </div>
+                  <div class="w-metric-cell">
+                    <span class="wm-label"><i data-lucide="sun"></i> UV Max</span>
+                    <strong class="font-mono" id="wUV">6.2</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RIGHT-SIDE 7-DAY FORECAST PANEL -->
+              <div class="forecast-panel-side glass-card">
+                <div class="panel-head-clean">
+                  <div>
+                    <span class="sub-label">UPCOMING WEATHER FORECAST</span>
+                    <h4>7-Day Outlook</h4>
+                  </div>
+                  <span class="badge-tag">Open-Meteo</span>
+                </div>
+                <div class="daily-forecast-list" id="dailyForecastList">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- HORIZONTAL HOURLY FORECAST SECTION -->
+            <div class="hourly-forecast-container glass-card">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">PRECIPITATION TRAJECTORY</span>
+                  <h4>Hourly Forecast (Next 24 Hours)</h4>
+                </div>
+                <span class="badge-tag font-mono">HOURLY DELTAS</span>
+              </div>
+              <div class="hourly-scroll-strip" id="hourlyStrip">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- RECENT WEATHER HISTORY (LAST 3 DAYS) -->
+            <div class="recent-history-section glass-card">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">OBSERVED REANALYSIS</span>
+                  <h4>Recent Weather History (Last 3 Days)</h4>
+                </div>
+                <span class="badge-tag font-mono">NASA POWER / Open-Meteo Historical Gridded</span>
+              </div>
+              <div class="recent-days-grid" id="recentHistoryDays">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- LOCATION SAFETY ANALYSIS (RISK SCREENING) -->
+            <div class="risk-screening-section glass-card" id="section-risk">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">LOCATION SAFETY ANALYSIS</span>
+                  <h4>Is this location currently showing elevated rainfall risk?</h4>
+                </div>
+                <span class="badge-tag alert">EXPERIMENTAL SCREENING</span>
+              </div>
+
+              <p class="screening-disclaimer-note">
+                <i data-lucide="info"></i>
+                <b>Experimental Risk Score – Not a calibrated probability of an actual disaster.</b> Terrain, slope,
+                drainage capacity, river stage, and verified local geotechnical audits are required for operational
+                emergency warning.
+              </p>
+
+              <div class="risk-dual-grid">
+                <!-- FLOOD RISK CARD -->
+                <div class="risk-meter-card" id="floodMeterCard">
+                  <div class="rm-head">
+                    <span class="rm-type"><i data-lucide="waves"></i> Flood Risk Screening</span>
+                    <span class="risk-badge" id="floodRiskBadge">MODERATE</span>
+                  </div>
+                  <div class="rm-score-display">
+                    <span class="rm-score font-mono" id="floodRiskScore">38</span>
+                    <span class="rm-denom">/ 100</span>
+                  </div>
+                  <div class="rm-progress-bar">
+                    <div class="rm-fill" id="floodRiskFill" style="width: 38%;"></div>
+                  </div>
+                  <div class="rm-reasons" id="floodRiskReasons">
+                    <!-- Reasons rendered via JS -->
+                  </div>
+                </div>
+
+                <!-- LANDSLIDE RISK CARD -->
+                <div class="risk-meter-card" id="landslideMeterCard">
+                  <div class="rm-head">
+                    <span class="rm-type"><i data-lucide="mountain"></i> Landslide Risk Screening</span>
+                    <span class="risk-badge" id="landslideRiskBadge">LOW</span>
+                  </div>
+                  <div class="rm-score-display">
+                    <span class="rm-score font-mono" id="landslideRiskScore">18</span>
+                    <span class="rm-denom">/ 100</span>
+                  </div>
+                  <div class="rm-progress-bar">
+                    <div class="rm-fill" id="landslideRiskFill" style="width: 18%;"></div>
+                  </div>
+                  <div class="rm-reasons" id="landslideRiskReasons">
+                    <!-- Reasons rendered via JS -->
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- LARGE INTERACTIVE MAP SECTION -->
+            <div class="map-feature-section glass-card" id="section-map">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">GEOGRAPHIC SURVEILLANCE</span>
+                  <h4>Interactive Rainfall & Disaster Intelligence Map</h4>
+                </div>
+                <div class="map-controls-cluster">
+                  <div class="layer-buttons">
+                    <button class="layer-toggle-btn active" data-layer="all" onclick="setMapFilter('all')">All
+                      Feeds</button>
+                    <button class="layer-toggle-btn" data-layer="rain" onclick="setMapFilter('rain')">Rainfall</button>
+                    <button class="layer-toggle-btn" data-layer="shelters"
+                      onclick="setMapFilter('shelters')">Shelters</button>
+                    <button class="layer-toggle-btn" data-layer="landslides"
+                      onclick="setMapFilter('landslides')">Landslides</button>
+                    <button class="layer-toggle-btn" data-layer="floods"
+                      onclick="setMapFilter('floods')">Floods</button>
+                    <button class="layer-toggle-btn" data-layer="reports"
+                      onclick="setMapFilter('reports')">Reports</button>
+                  </div>
+                </div>
+              </div>
+
+              <div id="interactiveMap" class="interactive-leaflet-map"></div>
+
+              <div class="map-footer-legend">
+                <div class="legend-group">
+                  <strong>Rainfall Indicators:</strong>
+                  <span><span class="legend-dot red"></span> High (>20 mm)</span>
+                  <span><span class="legend-dot yellow"></span> Moderate (5-20 mm)</span>
+                  <span><span class="legend-dot green"></span> Low (<5 mm)</span>
+                </div>
+                <div class="legend-group">
+                  <strong>Disaster & Assets:</strong>
+                  <span><span class="legend-icon green">⌂</span> Shelter</span>
+                  <span><span class="legend-icon brown">▲</span> Landslide</span>
+                  <span><span class="legend-icon blue">≋</span> Flood</span>
+                  <span><span class="legend-icon red">!</span> Emergency Report</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SAFER NEARBY AREA COMPARISON -->
+            <div class="safer-areas-section glass-card" id="section-safer">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">CANDIDATE GEOGRAPHIC BENCHMARK</span>
+                  <h4>Compare Nearby Areas (Comparatively Lower-Rainfall Sectors)</h4>
+                </div>
+                <span class="badge-tag">MICRO-CLIMATE EVALUATION</span>
+              </div>
+              <p class="screening-disclaimer-note">
+                <i data-lucide="alert-circle"></i>
+                <b>Lower rainfall indicators – not a verified safe shelter.</b> This tool compares meteorological
+                sensors across nearby sectors to highlight comparatively lower accumulation zones.
+              </p>
+              <div class="safer-areas-table-wrap">
+                <table class="astro-table">
+                  <thead>
+                    <tr>
+                      <th>Candidate Sector</th>
+                      <th>Coordinates</th>
+                      <th>Current Rainfall</th>
+                      <th>48h Forecast Sum</th>
+                      <th>Risk Screening Score</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="saferAreasTableBody">
+                    <!-- Rendered via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- HISTORICAL DATA & MONTH SELECTION -->
+            <div class="history-explorer-section glass-card" id="section-history">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">MULTI-TIMEFRAME RAINFALL ANALYSIS</span>
+                  <h4>Date & Month Rainfall Exploration</h4>
+                </div>
+                <div class="date-selector-pills" id="periodSelectorPills">
+                  <button class="period-btn" data-period="today" onclick="selectRainfallPeriod('today')">Today</button>
+                  <button class="period-btn" data-period="yesterday"
+                    onclick="selectRainfallPeriod('yesterday')">Yesterday</button>
+                  <button class="period-btn" data-period="last_3_days"
+                    onclick="selectRainfallPeriod('last_3_days')">Last 3 Days</button>
+                  <button class="period-btn active" data-period="last_7_days"
+                    onclick="selectRainfallPeriod('last_7_days')">Last 7 Days</button>
+                  <button class="period-btn" data-period="current_month"
+                    onclick="selectRainfallPeriod('current_month')">Current Month</button>
+                  <button class="period-btn" data-period="previous_month"
+                    onclick="selectRainfallPeriod('previous_month')">Previous Month</button>
+                </div>
+              </div>
+
+              <!-- MONTH PICKER & CUSTOM DATE RANGE (PROMPT REQUIREMENT #7) -->
+              <div class="period-custom-filter-bar">
+                <div class="filter-item-wrap">
+                  <label><i data-lucide="calendar"></i> Any Selected Month:</label>
+                  <select id="historyMonthSelect" onchange="selectHistoricalMonth(this.value)">
+                    <option value="">Choose Specific Month...</option>
+                    <option value="2026-11">November 2026</option>
+                    <option value="2026-10">October 2026</option>
+                    <option value="2026-09">September 2026</option>
+                    <option value="2026-08">August 2026</option>
+                    <option value="2026-07">July 2026</option>
+                    <option value="2026-06">June 2026</option>
+                    <option value="2024-10">October 2024</option>
+                    <option value="2023-12">December 2023</option>
+                  </select>
+                </div>
+                <div class="filter-item-wrap custom-date-inputs">
+                  <label><i data-lucide="calendar-range"></i> Custom Date Range:</label>
+                  <div class="date-inputs-row">
+                    <input type="date" id="historyStartDate">
+                    <span>to</span>
+                    <input type="date" id="historyEndDate">
+                    <button class="btn-action-secondary" onclick="applyCustomDateRange()">Filter Range</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="period-stats-grid">
+                <div class="stat-box">
+                  <span class="stat-label">Total Rainfall</span>
+                  <strong class="stat-val font-mono" id="periodTotalRain">18.4 mm</strong>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Daily Average</span>
+                  <strong class="stat-val font-mono" id="periodAvgRain">2.6 mm/day</strong>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Max Rain Day</span>
+                  <strong class="stat-val font-mono text-cyan" id="periodMaxRainDay">11.2 mm</strong>
+                  <small id="periodMaxRainDate">2026-11-18</small>
+                </div>
+                <div class="stat-box">
+                  <span class="stat-label">Rainy Days (≥2.5mm)</span>
+                  <strong class="stat-val font-mono text-emerald" id="periodRainyDays">2 Days</strong>
+                </div>
+              </div>
+
+              <!-- CHARTS DUAL VIEW -->
+              <div class="two-col-charts">
+                <div class="chart-box">
+                  <h5>Daily Rainfall Distribution in Period (mm)</h5>
+                  <div class="canvas-holder">
+                    <canvas id="periodDailyChart"></canvas>
+                  </div>
+                </div>
+                <div class="chart-box">
+                  <h5>NASA POWER Monthly Climate Comparison (2-Year Archive)</h5>
+                  <div class="canvas-holder">
+                    <canvas id="monthlyComparisonChart"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- HISTORICAL DISASTER RECORDS (LANDSLIDE & FLOOD SECTIONS) -->
+            <div class="two-col-layout" style="margin-top: 24px;">
+              <!-- HISTORICAL LANDSLIDE RECORDS -->
+              <div class="glass-card" id="section-landslides">
+                <div class="panel-head-clean">
+                  <div>
+                    <span class="sub-label">GEOTECHNICAL INVENTORY</span>
+                    <h4>Historical Landslide Records</h4>
+                  </div>
+                  <span class="record-count-badge" id="landslideCountBadge">0 Records</span>
+                </div>
+                <div class="filter-bar-sub">
+                  <select id="lsDistrictFilter" onchange="loadLandslideRecords()">
+                    <option value="all">All Districts</option>
+                    <option value="Viluppuram" selected>Viluppuram District</option>
+                    <option value="Nilgiris">Nilgiris District</option>
+                    <option value="Chengalpattu">Chengalpattu District</option>
+                  </select>
+                  <select id="lsYearFilter" onchange="loadLandslideRecords()">
+                    <option value="all">All Years</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                  </select>
+                  <input type="text" id="lsSearchQuery" placeholder="Filter location..."
+                    oninput="loadLandslideRecords()">
+                </div>
+                <div class="incident-scroll-list" id="landslideList">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+
+              <!-- HISTORICAL FLOOD RECORDS -->
+              <div class="glass-card" id="section-floods">
+                <div class="panel-head-clean">
+                  <div>
+                    <span class="sub-label">HYDROLOGICAL INVENTORY</span>
+                    <h4>Historical Flood Records</h4>
+                  </div>
+                  <span class="record-count-badge" id="floodCountBadge">0 Records</span>
+                </div>
+                <div class="filter-bar-sub">
+                  <select id="flDistrictFilter" onchange="loadFloodRecords()">
+                    <option value="all">All Districts</option>
+                    <option value="Viluppuram" selected>Viluppuram District</option>
+                    <option value="Chennai">Chennai District</option>
+                    <option value="Cuddalore">Cuddalore District</option>
+                  </select>
+                  <select id="flMonthFilter" onchange="loadFloodRecords()">
+                    <option value="all">All Months</option>
+                    <option value="12">December</option>
+                    <option value="11">November</option>
+                    <option value="10">October</option>
+                  </select>
+                  <input type="text" id="flSearchQuery" placeholder="Filter location..." oninput="loadFloodRecords()">
+                </div>
+                <div class="incident-scroll-list" id="floodList">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+            </div>
+
+            <!-- FAMILY CONTACTS & IN-APP WEATHER REMINDER -->
+            <div class="glass-card" id="section-family" style="margin-top: 24px;">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">PERSONAL SAFETY NETWORK</span>
+                  <h4>My Family & Emergency Contacts</h4>
+                </div>
+                <button class="btn-action-primary" onclick="openFamilyModal()">
+                  <i data-lucide="user-plus"></i> Add Contact
+                </button>
+              </div>
+              <p class="section-desc-note">
+                Save contact details for your parents, relatives, or neighbors. Use the one-click reminder button to
+                issue an immediate in-app weather safety advisory.
+              </p>
+              <div class="family-cards-grid" id="familyCardsGrid">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- USER REVIEWS & FEEDBACK -->
+            <div class="glass-card" id="section-reviews" style="margin-top: 24px;">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">COMMUNITY TESTIMONIALS</span>
+                  <h4>My Reviews & Platform Feedback</h4>
+                </div>
+                <button class="btn-action-secondary" onclick="openReviewModal()">
+                  <i data-lucide="message-square"></i> Submit Review
+                </button>
+              </div>
+              <div class="reviews-display-grid" id="reviewsGrid">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW B: RESCUE TEAM DASHBOARD                                  -->
+        <!-- ============================================================== -->
+        <div id="view-rescue" class="workspace-view">
+          <section class="rescue-hero-banner" id="rescueHero">
+            <div>
+              <span class="role-badge rescue">TACTICAL RESCUE SQUAD DISPATCH</span>
+              <h2>Rescue Command & First-Responder Hub</h2>
+              <p>Live incident triage, public SOS reports, rescue battalion allocation, and evacuation operations.</p>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <button class="btn-action-primary" onclick="openReportModal()">
+                <i data-lucide="plus-circle"></i> Log Field SOS
+              </button>
+              <button class="btn-refresh" onclick="loadRescueViewData()">
+                <i data-lucide="refresh-cw"></i> Refresh Triage
+              </button>
+            </div>
+          </section>
+
+          <!-- RESCUE OVERVIEW METRICS -->
+          <div class="rescue-metrics-strip">
+            <div class="rescue-metric-card red">
+              <span class="rmc-label">Incoming Unassigned Reports</span>
+              <strong class="font-mono" id="rescueNewCount">0</strong>
+            </div>
+            <div class="rescue-metric-card yellow">
+              <span class="rmc-label">Teams In Progress / Dispatched</span>
+              <strong class="font-mono" id="rescueActiveCount">0</strong>
+            </div>
+            <div class="rescue-metric-card green">
+              <span class="rmc-label">Rescued / Resolved Incidents</span>
+              <strong class="font-mono" id="rescueResolvedCount">0</strong>
+            </div>
+            <div class="rescue-metric-card blue">
+              <span class="rmc-label">Available Rescue Battalions</span>
+              <strong class="font-mono" id="rescueUnitsAvailable">4 Teams</strong>
+            </div>
+          </div>
+
+          <!-- RESCUE INCIDENT TRIAGE TABLE -->
+          <div class="glass-card" style="margin-top: 20px;" id="rescueTriageSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">INCIDENT WORKFLOW</span>
+                <h4>Emergency Incident Triage Queue</h4>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <button class="layer-toggle-btn active" id="flt-all" onclick="filterRescueTriage('ALL')">ALL</button>
+                <button class="layer-toggle-btn" id="flt-new" onclick="filterRescueTriage('NEW')">NEW</button>
+                <button class="layer-toggle-btn" id="flt-prog" onclick="filterRescueTriage('IN_PROGRESS')">IN PROGRESS</button>
+                <button class="layer-toggle-btn" id="flt-res" onclick="filterRescueTriage('RESOLVED')">RESOLVED</button>
+              </div>
+            </div>
+            <div class="astro-table-wrap">
+              <table class="astro-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Reporter</th>
+                    <th>Emergency Type</th>
+                    <th>Location & Sector</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Assigned Squad</th>
+                    <th>Update Status</th>
+                  </tr>
+                </thead>
+                <tbody id="rescueTriageTableBody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- RESCUE TACTICAL MAP -->
+          <div class="glass-card" style="margin-top: 20px;" id="rescueMapSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">GEO-SPATIAL SITUATION ROOM</span>
+                <h4>Tactical Field Incidents & Squad Deployment Map</h4>
+              </div>
+              <span class="badge-tag">RESCUE GIS RADAR</span>
+            </div>
+            <div id="rescueInteractiveMap" class="interactive-leaflet-map" style="height:420px;border-radius:12px;"></div>
+            <div class="map-footer-legend" style="margin-top:12px;">
+              <div class="legend-group">
+                <strong>Incident Status:</strong>
+                <span><span class="legend-dot red"></span> Critical / High</span>
+                <span><span class="legend-dot yellow"></span> Moderate</span>
+                <span><span class="legend-dot green"></span> Resolved</span>
+              </div>
+              <div class="legend-group">
+                <strong>Forces:</strong>
+                <span><span class="legend-icon blue">🛡</span> Rescue Squad Unit</span>
+                <span><span class="legend-icon green">⌂</span> Civil Shelter</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- RESCUE UNITS & DEPLOYED TEAMS -->
+          <div class="glass-card" style="margin-top: 20px;" id="rescueUnitsSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">FIELD SQUAD READINESS</span>
+                <h4>Active Rescue Battalions & Units Manifest</h4>
+              </div>
+              <span class="badge-tag">PERSONNEL MANIFEST</span>
+            </div>
+            <div class="rescue-units-grid" id="rescueUnitsList">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================================== -->
+        <!-- VIEW C: COLLECTOR / MUNICIPALITY DASHBOARD                     -->
+        <!-- ============================================================== -->
+        <div id="view-collector" class="workspace-view">
+          <section class="collector-hero-banner" id="collectorHero">
+            <div>
+              <span class="role-badge collector">DISTRICT EMERGENCY OPERATIONS CENTER (DEOC)</span>
+              <h2>District Collector & Magistrate Executive Command</h2>
+              <p>Macro disaster governance, official emergency alerts broadcasting, taluk vulnerability audits, and shelter logistics.</p>
+            </div>
+            <div class="collector-actions-top">
+              <button class="btn-action-primary" onclick="openBroadcastModal()">
+                <i data-lucide="radio"></i> Issue Public Directive
+              </button>
+              <button class="btn-action-secondary" onclick="exportIncidentReports()">
+                <i data-lucide="download"></i> Export Reports CSV
+              </button>
+            </div>
+          </section>
+
+          <!-- COLLECTOR MACRO METRICS -->
+          <div class="collector-metrics-strip">
+            <div class="col-metric-card">
+              <span class="cmc-label">District Shelter Utilization</span>
+              <strong class="font-mono text-cyan" id="colShelterPct">67.4%</strong>
+              <small id="colShelterSub">1,347 / 2,000 Occupants</small>
+            </div>
+            <div class="col-metric-card">
+              <span class="cmc-label">Verified Historical Incidents</span>
+              <strong class="font-mono text-amber" id="colVerifiedCount">8 Records</strong>
+              <small>Landslides & Floods</small>
+            </div>
+            <div class="col-metric-card">
+              <span class="cmc-label">Active Public Directives</span>
+              <strong class="font-mono text-red" id="colAlertsCount">3 Active</strong>
+              <small>Red / Orange Bulletins</small>
+            </div>
+            <div class="col-metric-card">
+              <span class="cmc-label">Emergency Response Force</span>
+              <strong class="font-mono text-emerald">60 Personnel</strong>
+              <small>4 Dedicated Battalions</small>
+            </div>
+          </div>
+
+          <!-- SHELTER LOGISTICS MANAGEMENT -->
+          <div class="glass-card" style="margin-top: 20px;" id="collectorShelterSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">CIVIL PROTECTION INFRASTRUCTURE</span>
+                <h4>District Evacuation Shelters & Capacity Management</h4>
+              </div>
+              <span class="badge-tag">DEOC LOGISTICS</span>
+            </div>
+            <div class="astro-table-wrap">
+              <table class="astro-table">
+                <thead>
+                  <tr>
+                    <th>Shelter Name</th>
+                    <th>Taluk / District</th>
+                    <th>Capacity</th>
+                    <th>Occupancy</th>
+                    <th>Utilization</th>
+                    <th>Contact Officer</th>
+                    <th>Status</th>
+                    <th>Update Occupancy</th>
+                  </tr>
+                </thead>
+                <tbody id="collectorSheltersTableBody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ADMINISTRATIVE BROADCAST DIRECTIVES -->
+          <div class="two-col-layout" style="margin-top: 20px;" id="collectorBroadcastSection">
+            <div class="glass-card">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">PUBLIC BROADCAST CONSOLE</span>
+                  <h4>Issue Official Disaster Directive</h4>
+                </div>
+              </div>
+              <form class="admin-broadcast-form" onsubmit="handleBroadcastSubmit(event)">
+                <div class="form-group">
+                  <label>Alert Classification *</label>
+                  <select id="bcastSeverity" required>
+                    <option value="RED_ALERT">🔴 RED ALERT — Mandatory Evacuation / High Threat</option>
+                    <option value="ORANGE_ALERT">🟠 ORANGE ALERT — Severe Weather Watch / River Catchment</option>
+                    <option value="YELLOW_WATCH">🟡 YELLOW WATCH — Precautionary Advisory</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Affected Taluks / Districts *</label>
+                  <input type="text" id="bcastDistricts" placeholder="e.g. Viluppuram, Gingee, Vanur, Tindivanam" required>
+                </div>
+                <div class="form-group">
+                  <label>Official Headline Directive *</label>
+                  <input type="text" id="bcastTitle" placeholder="e.g. Reservoir Inflow Discharge Alert" required>
+                </div>
+                <div class="form-group">
+                  <label>Instructional Message for Citizens *</label>
+                  <textarea id="bcastMessage" rows="3"
+                    placeholder="Specify low-lying zones, evacuation shelter locations, and emergency contacts..."
+                    required></textarea>
+                </div>
+                <button type="submit" class="btn-action-primary full-width">TRANSMIT DIRECTIVE TO ALL PORTALS</button>
+              </form>
+            </div>
+
+            <!-- ACTIVE DIRECTIVES LIST -->
+            <div class="glass-card" id="collectorActiveDirectives">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">ACTIVE TRANSMISSIONS</span>
+                  <h4>Active Public Directives & Alerts</h4>
+                </div>
+                <span class="badge-tag alert">LIVE BROADCASTS</span>
+              </div>
+              <div class="active-alerts-list" id="collectorAlertsList" style="display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto;">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- OFFICIAL CONTACTS & REGISTRY -->
+          <div class="two-col-layout" style="margin-top: 20px;">
+            <div class="glass-card" id="collectorContactsSection">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">INTER-AGENCY DIRECTORY</span>
+                  <h4>Verified Official Emergency Contacts</h4>
+                </div>
+              </div>
+              <div class="official-contacts-list" id="officialContactsList">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- CSV IMPORT FOR VERIFIED DISASTER RECORDS -->
+            <div class="glass-card" id="collectorCsvSection">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">REGISTRY DATA INTEGRATION</span>
+                  <h4>Import Verified Historical Incidents via CSV</h4>
+                </div>
+                <span class="badge-tag">ADMIN ONLY</span>
+              </div>
+              <p class="section-desc-note">
+                Upload verified disaster event logs from Geological Survey of India (GSI) or Central Water Commission
+                (CWC). Required columns:
+                <code>event_date, latitude, longitude, location, district, description, source, type</code>.
+              </p>
+              <div class="csv-upload-box" style="margin-bottom:12px;">
+                <input type="file" id="csvFileInput" accept=".csv" onchange="handleCSVUpload(event)">
+                <label for="csvFileInput" class="btn-action-secondary">
+                  <i data-lucide="upload"></i> Select CSV File to Upload
+                </label>
+                <span id="csvUploadStatus" class="upload-status-text">No file chosen</span>
+              </div>
+              <div>
+                <button type="button" class="btn-action-secondary" onclick="downloadSampleCSVTemplate()" style="font-size:12px;padding:6px 14px;">
+                  <i data-lucide="file-spreadsheet"></i> Download Sample CSV Template
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODALS (INCIDENT REPORT, FAMILY, REVIEW, ETC.)                 -->
+  <!-- ============================================================== -->
+
+  <!-- 1. CITIZEN INCIDENT REPORT MODAL -->
+  <div id="reportModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i data-lucide="alert-triangle"></i> Submit Emergency Hazard Report</h3>
+        <button class="btn-close-modal" onclick="closeReportModal()">&times;</button>
+      </div>
+      <form onsubmit="handleReportSubmit(event)">
+        <div class="form-group">
+          <label>Your Full Name *</label>
+          <input type="text" id="repName" placeholder="Name" required>
+        </div>
+        <div class="form-group">
+          <label>Contact Phone Number *</label>
+          <input type="tel" id="repPhone" placeholder="+91 94440 00000" required>
+        </div>
+        <div class="form-group">
+          <label>Emergency Hazard Type *</label>
+          <select id="repType" required>
+            <option value="Flood Inundation">Flood Inundation / Waterlogged Residence</option>
+            <option value="Landslide / Mudslide">Landslide / Mudslide Debris</option>
+            <option value="Road Blocked">Road Blocked by Fallen Tree / Electric Pole</option>
+            <option value="Medical Rescue">Medical Evacuation Needed</option>
+            <option value="Structure Collapse">Structure / Embankment Damage</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Location & Landmark Details *</label>
+          <input type="text" id="repLocation" placeholder="e.g. Viluppuram East Low Ward near Canal" required>
+        </div>
+        <div class="form-group">
+          <label>Situation Description *</label>
+          <textarea id="repDetails" rows="3"
+            placeholder="Describe depth of water, trapped elderly/infants, access difficulties..." required></textarea>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-cancel" onclick="closeReportModal()">Cancel</button>
+          <button type="submit" class="btn-action-primary">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. ADD / EDIT FAMILY CONTACT MODAL -->
+  <div id="familyModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i data-lucide="user-plus"></i> Add Emergency Contact</h3>
+        <button class="btn-close-modal" onclick="closeFamilyModal()">&times;</button>
+      </div>
+      <form onsubmit="handleFamilySubmit(event)">
+        <div class="form-group">
+          <label>Contact Full Name *</label>
+          <input type="text" id="famName" placeholder="e.g. K. Ramanathan" required>
+        </div>
+        <div class="form-group">
+          <label>Relationship *</label>
+          <select id="famRelation" required>
+            <option value="Father">Father</option>
+            <option value="Mother">Mother</option>
+            <option value="Brother">Brother</option>
+            <option value="Sister">Sister</option>
+            <option value="Friend">Friend</option>
+            <option value="Emergency Contact">Emergency Contact</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Mobile Phone *</label>
+          <input type="tel" id="famPhone" placeholder="+91 98400 00000" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address (Optional)</label>
+          <input type="email" id="famEmail" placeholder="relative@example.com">
+        </div>
+        <div class="form-group">
+          <label>Location / Area</label>
+          <input type="text" id="famLocation" placeholder="e.g. Viluppuram Town">
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-cancel" onclick="closeFamilyModal()">Cancel</button>
+          <button type="submit" class="btn-action-primary">Save Contact</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. SUBMIT REVIEW MODAL -->
+  <div id="reviewModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i data-lucide="star"></i> Submit Platform Review</h3>
+        <button class="btn-close-modal" onclick="closeReviewModal()">&times;</button>
+      </div>
+      <form onsubmit="handleReviewSubmit(event)">
+        <div class="form-group">
+          <label>Rating (1 to 5 Stars) *</label>
+          <select id="revRating" required>
+            <option value="5">⭐⭐⭐⭐⭐ 5 Stars — Excellent</option>
+            <option value="4">⭐⭐⭐⭐ 4 Stars — Very Good</option>
+            <option value="3">⭐⭐⭐ 3 Stars — Good</option>
+            <option value="2">⭐⭐ 2 Stars — Fair</option>
+            <option value="1">⭐ 1 Star — Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Review Title *</label>
+          <input type="text" id="revTitle" placeholder="e.g. Great rainfall indicators" required>
+        </div>
+        <div class="form-group">
+          <label>Detailed Feedback *</label>
+          <textarea id="revMessage" rows="3"
+            placeholder="Share your experience using the weather forecasts and hazard alerts..." required></textarea>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-cancel" onclick="closeReviewModal()">Cancel</button>
+          <button type="submit" class="btn-action-primary">Post Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. CITIZEN REGISTRATION MODAL -->
+  <div id="registerModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i data-lucide="user-check"></i> Register Citizen Account</h3>
+        <button class="btn-close-modal" onclick="closeRegisterModal()">&times;</button>
+      </div>
+      <form onsubmit="handleRegisterSubmit(event)">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" id="regName" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" id="regEmail" placeholder="you@domain.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password (minimum 6 characters) *</label>
+          <input type="password" id="regPassword" placeholder="••••••••" minlength="6" required>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn-cancel" onclick="closeRegisterModal()">Cancel</button>
+          <button type="submit" class="btn-action-primary">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION POPUP -->
+  <div id="toast" class="toast-popup"></div>
+
+  <!-- SCRIPTS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+
+</html>
