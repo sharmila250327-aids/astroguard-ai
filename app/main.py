@@ -643,7 +643,13 @@ async def ml_rainfall(lat: float, lon: float):
             "available": False,
             "reason": "Model compilation required: run python ml/train_rainfall.py"
         }
-    import joblib, pandas as pd
+    try:
+        import joblib, pandas as pd
+    except ImportError:
+        return {
+            "available": False,
+            "reason": "Machine learning dependencies (joblib/pandas) not installed in this environment."
+        }
     hist = await historical_weather(lat, lon, years=2)
     vals = [float(x) if x is not None else 0.0 for x in hist["daily"]["precipitation_sum"]]
     if len(vals) < 8:
