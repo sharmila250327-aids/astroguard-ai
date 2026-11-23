@@ -26,6 +26,9 @@ astroguard-ai-final/
 # Vercel deployment cache
 .vercel/
 
+# Temporary scratch scripts
+scratch/
+
 # Editor & OS files
 .vscode/
 .idea/

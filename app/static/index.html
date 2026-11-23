@@ -51,7 +51,8 @@
         <h1 class="auth-title">ASTROGUARD <span class="accent-cyan">AI</span></h1>
         <p class="auth-subtitle">AI-Based Weather and Disaster Risk Intelligence Platform</p>
         <p class="auth-desc">Select your authorized workspace to access real-time Doppler rainfall telemetry,
-          experimental risk screening, and emergency coordination grids.</p>
+          experimental risk screening, and emergency coordination grids across all 38 Tamil Nadu districts & Puducherry.
+        </p>
       </header>
 
       <div class="role-grid">
@@ -74,14 +75,14 @@
             </div>
             <div class="input-wrap">
               <i data-lucide="lock"></i>
-              <input type="password" id="pass-public" placeholder="Password" value="DemoPublic123!" required>
+              <input type="password" id="pass-public" placeholder="Password" value="PublicCitizen123!" required>
             </div>
             <button type="submit" class="btn-role-action public">Sign In as Citizen</button>
           </form>
 
           <div class="role-card-footer">
             <button class="btn-guest" onclick="handleGuestLogin('public')">
-              <i data-lucide="zap"></i> One-Click Demo Access
+              <i data-lucide="zap"></i> Quick Access: Citizen
             </button>
             <span class="auth-alt-link" onclick="openRegisterModal()">New citizen? Register</span>
           </div>
@@ -107,14 +108,14 @@
             </div>
             <div class="input-wrap">
               <i data-lucide="lock"></i>
-              <input type="password" id="pass-rescue" placeholder="Official password" value="DemoRescue123!" required>
+              <input type="password" id="pass-rescue" placeholder="Official password" value="RescueTeam123!" required>
             </div>
             <button type="submit" class="btn-role-action rescue">Sign In to Rescue Command</button>
           </form>
 
           <div class="role-card-footer">
             <button class="btn-guest rescue" onclick="handleGuestLogin('rescue')">
-              <i data-lucide="zap"></i> Rescue Team Demo Access
+              <i data-lucide="zap"></i> Quick Access: Rescue Team
             </button>
             <small class="cred-hint">Official Account: <code>rescue@astroguard.ai</code></small>
           </div>
@@ -140,15 +141,15 @@
             </div>
             <div class="input-wrap">
               <i data-lucide="lock"></i>
-              <input type="password" id="pass-collector" placeholder="Administrative password" value="DemoAdmin123!"
-                required>
+              <input type="password" id="pass-collector" placeholder="Administrative password"
+                value="CollectorAdmin123!" required>
             </div>
             <button type="submit" class="btn-role-action collector">Sign In to Executive DEOC</button>
           </form>
 
           <div class="role-card-footer">
             <button class="btn-guest collector" onclick="handleGuestLogin('collector')">
-              <i data-lucide="zap"></i> Collector Demo Access
+              <i data-lucide="zap"></i> Quick Access: Collector
             </button>
             <small class="cred-hint">Govt Approval: <code>collector@district.gov.in</code></small>
           </div>
@@ -182,11 +183,15 @@
         </div>
       </div>
 
-      <!-- LOCATION SEARCH BAR -->
+      <!-- UNIVERSAL LOCATION & DISTRICT SEARCH BAR (PART 2) -->
       <div class="top-search-wrap">
         <i data-lucide="search" class="search-ico"></i>
-        <input type="text" id="topSearchInput" placeholder="Search city or district (e.g. Viluppuram, Chennai)..."
-          autocomplete="off">
+        <input type="text" id="topSearchInput"
+          placeholder="Search all 38 districts & towns (e.g. Viluppuram, Chennai, Nilgiris)..." autocomplete="off">
+        <select id="topDistrictSelect" onchange="handleDistrictDropdownChange(this.value)" class="district-quick-select"
+          title="Quick Select District">
+          <option value="">Choose District (All 38 TN + PY)...</option>
+        </select>
         <button class="btn-search-act" onclick="triggerSearch()">SEARCH</button>
         <button class="btn-gps-act" onclick="autoDetectLocation()" title="Detect current GPS location">
           <i data-lucide="crosshair"></i> GPS
@@ -270,33 +275,7 @@
 
         <!-- RENDERED DYNAMICALLY BASED ON CURRENT USER ROLE -->
         <div class="sidebar-menu" id="sidebarMenu">
-          <button class="sb-link active" onclick="switchPublicSection('section-overview', this)"><i
-              data-lucide="layout-grid"></i> Overview</button>
-          <button class="sb-link" onclick="switchPublicSection('weatherMainCard', this)"><i data-lucide="sun"></i>
-            Weather</button>
-          <button class="sb-link" onclick="switchPublicSection('hourlyStrip', this)"><i data-lucide="cloud-rain"></i>
-            Rainfall Forecast</button>
-          <button class="sb-link" onclick="switchPublicSection('section-history', this)"><i data-lucide="calendar"></i>
-            Historical Data</button>
-          <button class="sb-link" onclick="switchPublicSection('section-landslides', this)"><i
-              data-lucide="mountain"></i> Landslide History</button>
-          <button class="sb-link" onclick="switchPublicSection('section-floods', this)"><i data-lucide="waves"></i>
-            Flood History</button>
-          <button class="sb-link" onclick="switchPublicSection('section-risk', this)"><i data-lucide="shield-alert"></i>
-            Risk Analysis</button>
-          <button class="sb-link" onclick="switchPublicSection('section-map', this)"><i data-lucide="map"></i>
-            Map</button>
-          <button class="sb-link" onclick="switchPublicSection('section-safer', this)"><i data-lucide="compass"></i>
-            Safer Areas</button>
-          <button class="sb-link" onclick="switchPublicSection('section-family', this)"><i data-lucide="users"></i>
-            Family Contacts</button>
-          <button class="sb-link" onclick="switchPublicSection('globalAlertBanner', this)"><i data-lucide="bell"></i>
-            Notifications</button>
-          <button class="sb-link" onclick="openReportModal()"><i data-lucide="file-plus"></i> My Reports</button>
-          <button class="sb-link" onclick="switchPublicSection('section-reviews', this)"><i data-lucide="star"></i> My
-            Reviews</button>
-          <button class="sb-link" onclick="showAuthView()"><i data-lucide="users-round"></i> Switch Role</button>
-          <button class="sb-link" onclick="performLogout()"><i data-lucide="log-out"></i> Logout</button>
+          <!-- Rendered via JS -->
         </div>
 
         <div class="sidebar-bottom-card">
@@ -320,12 +299,14 @@
         <!-- ============================================================== -->
         <div id="view-public" class="workspace-view active">
           <!-- ROLE PREVIEW BANNER -->
-          <div id="rolePreviewBanner" class="role-preview-banner hidden" style="background:linear-gradient(90deg, #1e3a8a, #0369a1);border:1px solid #38bdf8;color:white;padding:12px 18px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div id="rolePreviewBanner" class="role-preview-banner hidden"
+            style="background:linear-gradient(90deg, #1e3a8a, #0369a1);border:1px solid #38bdf8;color:white;padding:12px 18px;border-radius:10px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <i data-lucide="shield-alert" style="color:#38bdf8;"></i>
               <span>Viewing Public Citizen Portal as <strong id="previewRoleName">Officer</strong></span>
             </div>
-            <button type="button" onclick="returnToActiveRoleDashboard()" style="background:#38bdf8;color:#081122;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;">
+            <button type="button" onclick="returnToActiveRoleDashboard()"
+              style="background:#38bdf8;color:#081122;border:0;padding:6px 14px;border-radius:6px;font-weight:700;cursor:pointer;">
               Return to Command Hub &rarr;
             </button>
           </div>
@@ -334,18 +315,23 @@
           <section class="welcome-hero-card">
             <div class="welcome-copy">
               <h2>Welcome to AstroGuard AI</h2>
-              <p>Monitor weather and understand rainfall-related risks around your location.</p>
+              <p>Monitor atmospheric telemetry, transparent risk screening, and emergency coordination across all 38
+                Tamil Nadu districts & Puducherry.</p>
 
-              <!-- LARGE MAIN DASHBOARD SEARCH BOX (PROMPT REQUIREMENT #3) -->
+              <!-- HERO DISTRICT & LOCATION SEARCH -->
               <div class="hero-large-search">
                 <div class="hero-search-input-wrap">
                   <i data-lucide="search" class="hero-search-ico"></i>
                   <input type="text" id="heroSearchInput"
-                    placeholder="Search any city, district or town (e.g. Viluppuram, Chennai, Poonamallee)..."
+                    placeholder="Search all 38 districts, cities or taluks (e.g. Viluppuram, Chennai, Nilgiris, Coimbatore)..."
                     autocomplete="off">
-                  <button class="btn-hero-search" onclick="triggerHeroSearch()">Search Location</button>
+                  <select id="heroDistrictSelect" onchange="handleDistrictDropdownChange(this.value)"
+                    class="district-quick-select" style="max-width:180px;">
+                    <option value="">Quick Select District...</option>
+                  </select>
+                  <button class="btn-hero-search" onclick="triggerHeroSearch()">Search</button>
                   <button class="btn-hero-gps" onclick="autoDetectLocation()" title="Detect current GPS location">
-                    <i data-lucide="crosshair"></i> Use My GPS
+                    <i data-lucide="crosshair"></i> GPS
                   </button>
                 </div>
                 <div id="heroSearchResults" class="hero-search-dropdown-menu"></div>
@@ -369,7 +355,7 @@
             </div>
           </section>
 
-          <!-- 1. OVERVIEW & WEATHER SECTION (MATCHING REFERENCE UI) -->
+          <!-- 1. OVERVIEW & WEATHER SECTION -->
           <section id="section-overview" class="content-section">
             <div class="weather-hero-grid">
               <!-- MAIN WEATHER FEATURE CARD -->
@@ -428,7 +414,7 @@
                     <span class="sub-label">UPCOMING WEATHER FORECAST</span>
                     <h4>7-Day Outlook</h4>
                   </div>
-                  <span class="badge-tag">Open-Meteo</span>
+                  <span class="badge-tag">Open-Meteo High-Res</span>
                 </div>
                 <div class="daily-forecast-list" id="dailyForecastList">
                   <!-- Rendered via JS -->
@@ -457,32 +443,32 @@
                   <span class="sub-label">OBSERVED REANALYSIS</span>
                   <h4>Recent Weather History (Last 3 Days)</h4>
                 </div>
-                <span class="badge-tag font-mono">NASA POWER / Open-Meteo Historical Gridded</span>
+                <span class="badge-tag font-mono">Open-Meteo Reanalysis Telemetry</span>
               </div>
               <div class="recent-days-grid" id="recentHistoryDays">
                 <!-- Rendered via JS -->
               </div>
             </div>
 
-            <!-- LOCATION SAFETY ANALYSIS (RISK SCREENING) -->
+            <!-- DEDICATED SEPARATE FLOOD & LANDSLIDE RISK SCREENING (PARTS 4 & 5) -->
             <div class="risk-screening-section glass-card" id="section-risk">
               <div class="panel-head-clean">
                 <div>
                   <span class="sub-label">LOCATION SAFETY ANALYSIS</span>
-                  <h4>Is this location currently showing elevated rainfall risk?</h4>
+                  <h4>Transparent Hazard Risk Screening</h4>
                 </div>
                 <span class="badge-tag alert">EXPERIMENTAL SCREENING</span>
               </div>
 
               <p class="screening-disclaimer-note">
                 <i data-lucide="info"></i>
-                <b>Experimental Risk Score – Not a calibrated probability of an actual disaster.</b> Terrain, slope,
-                drainage capacity, river stage, and verified local geotechnical audits are required for operational
-                emergency warning.
+                <b>Experimental Risk Screening Score – Not a calibrated disaster probability or official warning.</b>
+                Terrain, slope, drainage capacity, river stage, and verified local geotechnical audits are required for
+                operational emergency warning.
               </p>
 
               <div class="risk-dual-grid">
-                <!-- FLOOD RISK CARD -->
+                <!-- 1. FLOOD RISK SCREENING CARD (PART 4) -->
                 <div class="risk-meter-card" id="floodMeterCard">
                   <div class="rm-head">
                     <span class="rm-type"><i data-lucide="waves"></i> Flood Risk Screening</span>
@@ -498,9 +484,14 @@
                   <div class="rm-reasons" id="floodRiskReasons">
                     <!-- Reasons rendered via JS -->
                   </div>
+                  <div
+                    style="margin-top:10px;font-size:11px;color:#94a3b8;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">
+                    <span>Telemetry Status: <strong class="text-cyan" id="floodDataAvail">Full Telemetry
+                        Available</strong></span>
+                  </div>
                 </div>
 
-                <!-- LANDSLIDE RISK CARD -->
+                <!-- 2. LANDSLIDE RISK SCREENING CARD (PART 5) -->
                 <div class="risk-meter-card" id="landslideMeterCard">
                   <div class="rm-head">
                     <span class="rm-type"><i data-lucide="mountain"></i> Landslide Risk Screening</span>
@@ -516,11 +507,16 @@
                   <div class="rm-reasons" id="landslideRiskReasons">
                     <!-- Reasons rendered via JS -->
                   </div>
+                  <div
+                    style="margin-top:10px;font-size:11px;color:#94a3b8;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">
+                    <span>Terrain / Geotechnical Status: <strong class="text-cyan" id="landslideTerrainStatus">Lowland
+                        Alluvial Plains</strong></span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- LARGE INTERACTIVE MAP SECTION -->
+            <!-- LARGE INTERACTIVE MAP SECTION (PART 23) -->
             <div class="map-feature-section glass-card" id="section-map">
               <div class="panel-head-clean">
                 <div>
@@ -563,29 +559,31 @@
               </div>
             </div>
 
-            <!-- SAFER NEARBY AREA COMPARISON -->
+            <!-- SAFER NEARBY AREA COMPARISON (PARTS 9 & 18) -->
             <div class="safer-areas-section glass-card" id="section-safer">
               <div class="panel-head-clean">
                 <div>
                   <span class="sub-label">CANDIDATE GEOGRAPHIC BENCHMARK</span>
-                  <h4>Compare Nearby Areas (Comparatively Lower-Rainfall Sectors)</h4>
+                  <h4>Nearby Comparatively Lower-Rainfall Sectors & Shelters</h4>
                 </div>
                 <span class="badge-tag">MICRO-CLIMATE EVALUATION</span>
               </div>
               <p class="screening-disclaimer-note">
                 <i data-lucide="alert-circle"></i>
-                <b>Lower rainfall indicators – not a verified safe shelter.</b> This tool compares meteorological
-                sensors across nearby sectors to highlight comparatively lower accumulation zones.
+                <b>Relatively Lower Screening Risk – Not guaranteed to be safe. Follow official evacuation
+                  instructions.</b>
+                Compares real telemetry across nearby sectors to highlight comparatively lower accumulation zones.
               </p>
               <div class="safer-areas-table-wrap">
                 <table class="astro-table">
                   <thead>
                     <tr>
-                      <th>Candidate Sector</th>
-                      <th>Coordinates</th>
+                      <th>Candidate Sector / Shelter</th>
+                      <th>Category</th>
+                      <th>Distance</th>
                       <th>Current Rainfall</th>
                       <th>48h Forecast Sum</th>
-                      <th>Risk Screening Score</th>
+                      <th>Risk Classification</th>
                       <th>Action</th>
                     </tr>
                   </thead>
@@ -596,8 +594,63 @@
               </div>
             </div>
 
-            <!-- HISTORICAL DATA & MONTH SELECTION -->
-            <div class="history-explorer-section glass-card" id="section-history">
+            <!-- VERIFIED RELIEF SHELTERS (PARTS 17 & 18) -->
+            <div class="glass-card" id="section-shelters" style="margin-top:24px;">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">CIVIL DEFENSE RELIEF NETWORK</span>
+                  <h4>Verified Evacuation Shelters & Capacity Directory</h4>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <select id="publicShelterDistrictFilter" onchange="loadPublicShelters(this.value)"
+                    class="district-quick-select" style="max-width:180px;">
+                    <option value="all">All Districts</option>
+                  </select>
+                </div>
+              </div>
+              <div class="astro-table-wrap">
+                <table class="astro-table">
+                  <thead>
+                    <tr>
+                      <th>Shelter Facility</th>
+                      <th>District & Taluk</th>
+                      <th>Address</th>
+                      <th>Total Capacity</th>
+                      <th>Current Occupancy</th>
+                      <th>Available Spaces</th>
+                      <th>Occupancy %</th>
+                      <th>Classification</th>
+                    </tr>
+                  </thead>
+                  <tbody id="publicSheltersTableBody">
+                    <!-- Rendered via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- CITIZEN MY REPORTS & ACTION TRACKING (PART 15) -->
+            <div class="glass-card" id="section-my-reports" style="margin-top:24px;">
+              <div class="panel-head-clean">
+                <div>
+                  <span class="sub-label">CITIZEN REPORTING NETWORK</span>
+                  <h4>My Emergency Reports & Incident Tracking</h4>
+                </div>
+                <button class="btn-action-primary" onclick="openReportModal()">
+                  <i data-lucide="file-plus"></i> Submit New Report
+                </button>
+              </div>
+              <p class="section-desc-note">
+                Track your active emergency reports in real-time. Follow official Rescue Team acknowledgements, action
+                dispatches, and field resolution updates.
+              </p>
+              <div id="citizenReportsList">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- HISTORICAL DATA EXPLORER (PARTS 6, 7, 8) -->
+            <div class="history-explorer-section glass-card" id="section-history" style="margin-top:24px;">
               <div class="panel-head-clean">
                 <div>
                   <span class="sub-label">MULTI-TIMEFRAME RAINFALL ANALYSIS</span>
@@ -618,10 +671,10 @@
                 </div>
               </div>
 
-              <!-- MONTH PICKER & CUSTOM DATE RANGE (PROMPT REQUIREMENT #7) -->
+              <!-- MONTH PICKER & CUSTOM DATE RANGE -->
               <div class="period-custom-filter-bar">
                 <div class="filter-item-wrap">
-                  <label><i data-lucide="calendar"></i> Any Selected Month:</label>
+                  <label><i data-lucide="calendar"></i> Specific Month:</label>
                   <select id="historyMonthSelect" onchange="selectHistoricalMonth(this.value)">
                     <option value="">Choose Specific Month...</option>
                     <option value="2026-11">November 2026</option>
@@ -630,8 +683,10 @@
                     <option value="2026-08">August 2026</option>
                     <option value="2026-07">July 2026</option>
                     <option value="2026-06">June 2026</option>
-                    <option value="2024-10">October 2024</option>
+                    <option value="2025-11">November 2025</option>
+                    <option value="2024-12">December 2024</option>
                     <option value="2023-12">December 2023</option>
+                    <option value="2021-11">November 2021</option>
                   </select>
                 </div>
                 <div class="filter-item-wrap custom-date-inputs">
@@ -688,24 +743,32 @@
               <div class="glass-card" id="section-landslides">
                 <div class="panel-head-clean">
                   <div>
-                    <span class="sub-label">GEOTECHNICAL INVENTORY</span>
+                    <span class="sub-label">GEOTECHNICAL INVENTORY (2008–2026)</span>
                     <h4>Historical Landslide Records</h4>
                   </div>
-                  <span class="record-count-badge" id="landslideCountBadge">0 Records</span>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <span class="record-count-badge" id="landslideCountBadge">0 Records</span>
+                    <button class="btn-action-secondary" style="font-size:11px;padding:3px 8px;"
+                      onclick="openCoverageModal()">Coverage</button>
+                  </div>
                 </div>
                 <div class="filter-bar-sub">
                   <select id="lsDistrictFilter" onchange="loadLandslideRecords()">
-                    <option value="all">All Districts</option>
-                    <option value="Viluppuram" selected>Viluppuram District</option>
-                    <option value="Nilgiris">Nilgiris District</option>
-                    <option value="Chengalpattu">Chengalpattu District</option>
+                    <option value="all">All 38 Districts</option>
                   </select>
                   <select id="lsYearFilter" onchange="loadLandslideRecords()">
-                    <option value="all">All Years</option>
+                    <option value="all">All Years (2008–2026)</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
                     <option value="2024">2024</option>
                     <option value="2023">2023</option>
+                    <option value="2021">2021</option>
+                    <option value="2019">2019</option>
+                    <option value="2018">2018</option>
+                    <option value="2015">2015</option>
+                    <option value="2009">2009</option>
                   </select>
-                  <input type="text" id="lsSearchQuery" placeholder="Filter location..."
+                  <input type="text" id="lsSearchQuery" placeholder="Filter town or keyword..."
                     oninput="loadLandslideRecords()">
                 </div>
                 <div class="incident-scroll-list" id="landslideList">
@@ -717,23 +780,31 @@
               <div class="glass-card" id="section-floods">
                 <div class="panel-head-clean">
                   <div>
-                    <span class="sub-label">HYDROLOGICAL INVENTORY</span>
+                    <span class="sub-label">HYDROLOGICAL INVENTORY (2008–2026)</span>
                     <h4>Historical Flood Records</h4>
                   </div>
-                  <span class="record-count-badge" id="floodCountBadge">0 Records</span>
+                  <div style="display:flex;gap:6px;align-items:center;">
+                    <span class="record-count-badge" id="floodCountBadge">0 Records</span>
+                    <button class="btn-action-secondary" style="font-size:11px;padding:3px 8px;"
+                      onclick="openCoverageModal()">Coverage</button>
+                  </div>
                 </div>
                 <div class="filter-bar-sub">
                   <select id="flDistrictFilter" onchange="loadFloodRecords()">
-                    <option value="all">All Districts</option>
-                    <option value="Viluppuram" selected>Viluppuram District</option>
-                    <option value="Chennai">Chennai District</option>
-                    <option value="Cuddalore">Cuddalore District</option>
+                    <option value="all">All 38 Districts</option>
                   </select>
-                  <select id="flMonthFilter" onchange="loadFloodRecords()">
-                    <option value="all">All Months</option>
-                    <option value="12">December</option>
-                    <option value="11">November</option>
-                    <option value="10">October</option>
+                  <select id="flYearFilter" onchange="loadFloodRecords()">
+                    <option value="all">All Years (2008–2026)</option>
+                    <option value="2026">2026</option>
+                    <option value="2025">2025</option>
+                    <option value="2024">2024</option>
+                    <option value="2023">2023</option>
+                    <option value="2021">2021</option>
+                    <option value="2020">2020</option>
+                    <option value="2018">2018</option>
+                    <option value="2015">2015</option>
+                    <option value="2011">2011</option>
+                    <option value="2008">2008</option>
                   </select>
                   <input type="text" id="flSearchQuery" placeholder="Filter location..." oninput="loadFloodRecords()">
                 </div>
@@ -756,7 +827,7 @@
               </div>
               <p class="section-desc-note">
                 Save contact details for your parents, relatives, or neighbors. Use the one-click reminder button to
-                issue an immediate in-app weather safety advisory.
+                issue an immediate weather safety advisory via email and in-app alert.
               </p>
               <div class="family-cards-grid" id="familyCardsGrid">
                 <!-- Rendered via JS -->
@@ -768,7 +839,7 @@
               <div class="panel-head-clean">
                 <div>
                   <span class="sub-label">COMMUNITY TESTIMONIALS</span>
-                  <h4>My Reviews & Platform Feedback</h4>
+                  <h4>Platform Reviews & Feedback</h4>
                 </div>
                 <button class="btn-action-secondary" onclick="openReviewModal()">
                   <i data-lucide="message-square"></i> Submit Review
@@ -789,7 +860,8 @@
             <div>
               <span class="role-badge rescue">TACTICAL RESCUE SQUAD DISPATCH</span>
               <h2>Rescue Command & First-Responder Hub</h2>
-              <p>Live incident triage, public SOS reports, rescue battalion allocation, and evacuation operations.</p>
+              <p>Live incident triage, public SOS reports across all 38 Tamil Nadu districts & Puducherry, rescue
+                battalion allocation, and evacuation operations.</p>
             </div>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
               <button class="btn-action-primary" onclick="openReportModal()">
@@ -804,7 +876,7 @@
           <!-- RESCUE OVERVIEW METRICS -->
           <div class="rescue-metrics-strip">
             <div class="rescue-metric-card red">
-              <span class="rmc-label">Incoming Unassigned Reports</span>
+              <span class="rmc-label">Critical / High Incidents</span>
               <strong class="font-mono" id="rescueNewCount">0</strong>
             </div>
             <div class="rescue-metric-card yellow">
@@ -816,22 +888,29 @@
               <strong class="font-mono" id="rescueResolvedCount">0</strong>
             </div>
             <div class="rescue-metric-card blue">
-              <span class="rmc-label">Available Rescue Battalions</span>
-              <strong class="font-mono" id="rescueUnitsAvailable">4 Teams</strong>
+              <span class="rmc-label">Active Rescue Battalions</span>
+              <strong class="font-mono" id="rescueUnitsAvailable">5 Battalions</strong>
             </div>
           </div>
 
-          <!-- RESCUE INCIDENT TRIAGE TABLE -->
+          <!-- RESCUE INCIDENT TRIAGE TABLE (PARTS 11, 12, 13) -->
           <div class="glass-card" style="margin-top: 20px;" id="rescueTriageSection">
             <div class="panel-head-clean">
               <div>
-                <span class="sub-label">INCIDENT WORKFLOW</span>
+                <span class="sub-label">INCIDENT WORKFLOW & TRIAGE</span>
                 <h4>Emergency Incident Triage Queue</h4>
               </div>
               <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <select id="rescueDistrictFilter" onchange="filterRescueReports()" class="district-quick-select"
+                  style="max-width:160px;font-size:11px;">
+                  <option value="all">All Districts</option>
+                </select>
                 <button class="layer-toggle-btn active" id="flt-all" onclick="filterRescueTriage('ALL')">ALL</button>
-                <button class="layer-toggle-btn" id="flt-new" onclick="filterRescueTriage('NEW')">NEW</button>
-                <button class="layer-toggle-btn" id="flt-prog" onclick="filterRescueTriage('IN_PROGRESS')">IN PROGRESS</button>
+                <button class="layer-toggle-btn" id="flt-crit"
+                  onclick="filterRescueTriage('CRITICAL')">CRITICAL</button>
+                <button class="layer-toggle-btn" id="flt-new" onclick="filterRescueTriage('Received')">RECEIVED</button>
+                <button class="layer-toggle-btn" id="flt-prog" onclick="filterRescueTriage('IN_PROGRESS')">IN
+                  PROGRESS</button>
                 <button class="layer-toggle-btn" id="flt-res" onclick="filterRescueTriage('RESOLVED')">RESOLVED</button>
               </div>
             </div>
@@ -842,11 +921,11 @@
                     <th>ID</th>
                     <th>Reporter</th>
                     <th>Emergency Type</th>
-                    <th>Location & Sector</th>
-                    <th>Severity</th>
+                    <th>District & Location</th>
+                    <th>AI Priority</th>
                     <th>Status</th>
                     <th>Assigned Squad</th>
-                    <th>Update Status</th>
+                    <th>Action / Reply</th>
                   </tr>
                 </thead>
                 <tbody id="rescueTriageTableBody">
@@ -865,7 +944,8 @@
               </div>
               <span class="badge-tag">RESCUE GIS RADAR</span>
             </div>
-            <div id="rescueInteractiveMap" class="interactive-leaflet-map" style="height:420px;border-radius:12px;"></div>
+            <div id="rescueInteractiveMap" class="interactive-leaflet-map" style="height:420px;border-radius:12px;">
+            </div>
             <div class="map-footer-legend" style="margin-top:12px;">
               <div class="legend-group">
                 <strong>Incident Status:</strong>
@@ -904,7 +984,8 @@
             <div>
               <span class="role-badge collector">DISTRICT EMERGENCY OPERATIONS CENTER (DEOC)</span>
               <h2>District Collector & Magistrate Executive Command</h2>
-              <p>Macro disaster governance, official emergency alerts broadcasting, taluk vulnerability audits, and shelter logistics.</p>
+              <p>Macro disaster governance, official emergency alerts broadcasting, taluk vulnerability audits, and
+                shelter logistics across all 38 Tamil Nadu districts & Puducherry.</p>
             </div>
             <div class="collector-actions-top">
               <button class="btn-action-primary" onclick="openBroadcastModal()">
@@ -925,8 +1006,8 @@
             </div>
             <div class="col-metric-card">
               <span class="cmc-label">Verified Historical Incidents</span>
-              <strong class="font-mono text-amber" id="colVerifiedCount">8 Records</strong>
-              <small>Landslides & Floods</small>
+              <strong class="font-mono text-amber" id="colVerifiedCount">28 Records</strong>
+              <small>Landslides & Floods (2008–2026)</small>
             </div>
             <div class="col-metric-card">
               <span class="cmc-label">Active Public Directives</span>
@@ -935,12 +1016,56 @@
             </div>
             <div class="col-metric-card">
               <span class="cmc-label">Emergency Response Force</span>
-              <strong class="font-mono text-emerald">60 Personnel</strong>
-              <small>4 Dedicated Battalions</small>
+              <strong class="font-mono text-emerald">75 Personnel</strong>
+              <small>5 Dedicated Battalions</small>
             </div>
           </div>
 
-          <!-- SHELTER LOGISTICS MANAGEMENT -->
+          <!-- COLLECTOR FULL INCIDENT WORKFLOW & TRIAGE QUEUE (PART 14 - CRITICAL REQUIREMENT) -->
+          <div class="glass-card" style="margin-top: 20px;" id="collectorTriageSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">DEOC EXECUTIVE SURVEILLANCE (SHARED WORKFLOW)</span>
+                <h4>Emergency Incident Queue & Rescue Operations Workflow</h4>
+              </div>
+              <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                <select id="colDistrictFilter" onchange="filterCollectorReports()" class="district-quick-select"
+                  style="max-width:160px;font-size:11px;">
+                  <option value="all">All 38 Districts</option>
+                </select>
+                <button class="layer-toggle-btn active" id="col-flt-all" onclick="filterColTriage('ALL')">ALL</button>
+                <button class="layer-toggle-btn" id="col-flt-crit"
+                  onclick="filterColTriage('CRITICAL')">CRITICAL</button>
+                <button class="layer-toggle-btn" id="col-flt-new"
+                  onclick="filterColTriage('Received')">RECEIVED</button>
+                <button class="layer-toggle-btn" id="col-flt-prog" onclick="filterColTriage('IN_PROGRESS')">IN
+                  PROGRESS</button>
+                <button class="layer-toggle-btn" id="col-flt-res"
+                  onclick="filterColTriage('RESOLVED')">RESOLVED</button>
+              </div>
+            </div>
+            <div class="astro-table-wrap">
+              <table class="astro-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Reporter</th>
+                    <th>Category</th>
+                    <th>District & Sector</th>
+                    <th>AI Priority</th>
+                    <th>Status</th>
+                    <th>Assigned Squad</th>
+                    <th>Official Action</th>
+                  </tr>
+                </thead>
+                <tbody id="collectorTriageTableBody">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SHELTER LOGISTICS MANAGEMENT (PART 17) -->
           <div class="glass-card" style="margin-top: 20px;" id="collectorShelterSection">
             <div class="panel-head-clean">
               <div>
@@ -954,9 +1079,10 @@
                 <thead>
                   <tr>
                     <th>Shelter Name</th>
-                    <th>Taluk / District</th>
+                    <th>District</th>
                     <th>Capacity</th>
                     <th>Occupancy</th>
+                    <th>Available</th>
                     <th>Utilization</th>
                     <th>Contact Officer</th>
                     <th>Status</th>
@@ -970,13 +1096,63 @@
             </div>
           </div>
 
+          <!-- COLLECTOR INTER-AGENCY EMERGENCY EMAIL DIRECTIVE CONSOLE (PART 20) -->
+          <div class="glass-card email-composer-card" id="collectorEmailSection">
+            <div class="panel-head-clean">
+              <div>
+                <span class="sub-label">COMMAND COMMUNICATION</span>
+                <h4>Inter-Agency Emergency Email Directive Console (SMTP)</h4>
+              </div>
+              <span class="badge-tag alert">OFFICIAL DIRECTIVE</span>
+            </div>
+            <p class="section-desc-note">
+              Dispatch encrypted official emergency directives via authenticated SMTP to verified district officers
+              (Administration, Police, Fire, PWD, Health).
+            </p>
+            <div class="two-col-layout" style="margin-top:12px;">
+              <div>
+                <label style="font-weight:600;display:block;margin-bottom:6px;">Select Recipient Officials *</label>
+                <div class="contacts-multiselect-list" id="emailRecipientList">
+                  <!-- Rendered via JS -->
+                </div>
+              </div>
+              <div>
+                <div class="form-group">
+                  <label>Directive Template *</label>
+                  <select id="emailTemplateSelect" onchange="applyEmailTemplate(this.value)">
+                    <option value="Critical Flood Emergency">🔴 Critical Flood Emergency</option>
+                    <option value="Critical Landslide Emergency">🟠 Critical Landslide Emergency</option>
+                    <option value="Medical Rescue Required">🚑 Medical Rescue Required</option>
+                    <option value="Road Blockage">🚧 Road Blockage & Detour</option>
+                    <option value="Building Collapse">🏚️ Building Collapse / Structure Damage</option>
+                    <option value="Urgent District-Level Action Required">⚠️ Urgent District-Level Action Required
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Subject Headline *</label>
+                  <input type="text" id="emailSubjectInput" placeholder="Official DEOC Directive Headline" required>
+                </div>
+                <div class="form-group">
+                  <label>Directive Instructions *</label>
+                  <textarea id="emailMessageInput" rows="3"
+                    placeholder="Enter emergency mobilization orders and required response..." required></textarea>
+                </div>
+                <button type="button" class="btn-action-primary full-width" onclick="dispatchCollectorEmergencyEmail()">
+                  <i data-lucide="mail"></i> Transmit Official Directive via Email
+                </button>
+              </div>
+            </div>
+            <div id="emailDispatchLog" style="margin-top:12px;font-size:12px;"></div>
+          </div>
+
           <!-- ADMINISTRATIVE BROADCAST DIRECTIVES -->
           <div class="two-col-layout" style="margin-top: 20px;" id="collectorBroadcastSection">
             <div class="glass-card">
               <div class="panel-head-clean">
                 <div>
                   <span class="sub-label">PUBLIC BROADCAST CONSOLE</span>
-                  <h4>Issue Official Disaster Directive</h4>
+                  <h4>Issue Official Public Directive</h4>
                 </div>
               </div>
               <form class="admin-broadcast-form" onsubmit="handleBroadcastSubmit(event)">
@@ -990,7 +1166,8 @@
                 </div>
                 <div class="form-group">
                   <label>Affected Taluks / Districts *</label>
-                  <input type="text" id="bcastDistricts" placeholder="e.g. Viluppuram, Gingee, Vanur, Tindivanam" required>
+                  <input type="text" id="bcastDistricts" placeholder="e.g. Viluppuram, Cuddalore, Chengalpattu"
+                    required>
                 </div>
                 <div class="form-group">
                   <label>Official Headline Directive *</label>
@@ -1015,13 +1192,14 @@
                 </div>
                 <span class="badge-tag alert">LIVE BROADCASTS</span>
               </div>
-              <div class="active-alerts-list" id="collectorAlertsList" style="display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto;">
+              <div class="active-alerts-list" id="collectorAlertsList"
+                style="display:flex;flex-direction:column;gap:12px;max-height:360px;overflow-y:auto;">
                 <!-- Rendered via JS -->
               </div>
             </div>
           </div>
 
-          <!-- OFFICIAL CONTACTS & REGISTRY -->
+          <!-- OFFICIAL CONTACTS & REGISTRY (PART 19) -->
           <div class="two-col-layout" style="margin-top: 20px;">
             <div class="glass-card" id="collectorContactsSection">
               <div class="panel-head-clean">
@@ -1035,7 +1213,7 @@
               </div>
             </div>
 
-            <!-- CSV IMPORT FOR VERIFIED DISASTER RECORDS -->
+            <!-- CSV IMPORT FOR VERIFIED DISASTER RECORDS (PART 8) -->
             <div class="glass-card" id="collectorCsvSection">
               <div class="panel-head-clean">
                 <div>
@@ -1057,7 +1235,8 @@
                 <span id="csvUploadStatus" class="upload-status-text">No file chosen</span>
               </div>
               <div>
-                <button type="button" class="btn-action-secondary" onclick="downloadSampleCSVTemplate()" style="font-size:12px;padding:6px 14px;">
+                <button type="button" class="btn-action-secondary" onclick="downloadSampleCSVTemplate()"
+                  style="font-size:12px;padding:6px 14px;">
                   <i data-lucide="file-spreadsheet"></i> Download Sample CSV Template
                 </button>
               </div>
@@ -1069,10 +1248,10 @@
   </div>
 
   <!-- ============================================================== -->
-  <!-- MODALS (INCIDENT REPORT, FAMILY, REVIEW, ETC.)                 -->
+  <!-- MODALS (INCIDENT REPORT, ACTION, FAMILY, REVIEW, ETC.)         -->
   <!-- ============================================================== -->
 
-  <!-- 1. CITIZEN INCIDENT REPORT MODAL -->
+  <!-- 1. CITIZEN INCIDENT REPORT MODAL (PART 10) -->
   <div id="reportModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-head">
@@ -1082,40 +1261,83 @@
       <form onsubmit="handleReportSubmit(event)">
         <div class="form-group">
           <label>Your Full Name *</label>
-          <input type="text" id="repName" placeholder="Name" required>
+          <input type="text" id="repName" placeholder="Full Name" required>
         </div>
         <div class="form-group">
           <label>Contact Phone Number *</label>
           <input type="tel" id="repPhone" placeholder="+91 94440 00000" required>
         </div>
         <div class="form-group">
-          <label>Emergency Hazard Type *</label>
+          <label>Email Address</label>
+          <input type="email" id="repEmail" placeholder="citizen@example.com">
+        </div>
+        <div class="form-group">
+          <label>Emergency Hazard Category *</label>
           <select id="repType" required>
             <option value="Flood Inundation">Flood Inundation / Waterlogged Residence</option>
             <option value="Landslide / Mudslide">Landslide / Mudslide Debris</option>
-            <option value="Road Blocked">Road Blocked by Fallen Tree / Electric Pole</option>
-            <option value="Medical Rescue">Medical Evacuation Needed</option>
-            <option value="Structure Collapse">Structure / Embankment Damage</option>
+            <option value="Road Blocked">Road Blockage / Uprooted Tree / Submerged Causeway</option>
+            <option value="Medical Rescue">Medical Rescue / Patient Evacuation</option>
+            <option value="Building Collapse">Building / Structural Collapse</option>
+            <option value="Rescue Assistance">Rescue Assistance / Trapped Citizens</option>
+            <option value="Other Emergency">Other Life-Threatening Emergency</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Location & Landmark Details *</label>
-          <input type="text" id="repLocation" placeholder="e.g. Viluppuram East Low Ward near Canal" required>
+          <label>District *</label>
+          <select id="repDistrictSelect" required>
+            <!-- Populated via JS with all 38 districts + Puducherry -->
+          </select>
         </div>
         <div class="form-group">
-          <label>Situation Description *</label>
+          <label>Town / Village / Taluk *</label>
+          <input type="text" id="repTown" placeholder="e.g. Gingee Taluk or Velachery" required>
+        </div>
+        <div class="form-group">
+          <label>Full Street Address & Landmark Details *</label>
+          <input type="text" id="repLocation" placeholder="e.g. Ward 14, Kamaraj Street, near Panchayat Canal" required>
+        </div>
+        <div class="form-group">
+          <label>Emergency Situation Description *</label>
           <textarea id="repDetails" rows="3"
-            placeholder="Describe depth of water, trapped elderly/infants, access difficulties..." required></textarea>
+            placeholder="Specify water depth, trapped individuals, casualties, children/elderly present..."
+            required></textarea>
         </div>
         <div class="modal-foot">
           <button type="button" class="btn-cancel" onclick="closeReportModal()">Cancel</button>
-          <button type="submit" class="btn-action-primary">Submit Report</button>
+          <button type="submit" class="btn-action-primary">Submit Emergency Report</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 2. ADD / EDIT FAMILY CONTACT MODAL -->
+  <!-- 2. INCIDENT ACTION & REPLY MODAL (PARTS 13 & 14) -->
+  <div id="incidentActionModal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3><i data-lucide="shield"></i> Incident Command & Action Workflow</h3>
+        <button class="btn-close-modal" onclick="closeActionModal()">&times;</button>
+      </div>
+      <div id="actionModalContent">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. HISTORICAL DATA COVERAGE MODAL (PART 8) -->
+  <div id="coverageModal" class="modal-overlay hidden">
+    <div class="modal-card" style="max-width:640px;">
+      <div class="modal-head">
+        <h3><i data-lucide="database"></i> Verified Historical Disaster Coverage</h3>
+        <button class="btn-close-modal" onclick="closeCoverageModal()">&times;</button>
+      </div>
+      <div id="coverageModalContent" style="max-height:420px;overflow-y:auto;font-size:12.5px;">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ADD / EDIT FAMILY CONTACT MODAL (PART 21) -->
   <div id="familyModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-head">
@@ -1143,12 +1365,12 @@
           <input type="tel" id="famPhone" placeholder="+91 98400 00000" required>
         </div>
         <div class="form-group">
-          <label>Email Address (Optional)</label>
+          <label>Email Address (for weather reminder dispatch)</label>
           <input type="email" id="famEmail" placeholder="relative@example.com">
         </div>
         <div class="form-group">
-          <label>Location / Area</label>
-          <input type="text" id="famLocation" placeholder="e.g. Viluppuram Town">
+          <label>Location / District</label>
+          <input type="text" id="famLocation" placeholder="e.g. Viluppuram East">
         </div>
         <div class="modal-foot">
           <button type="button" class="btn-cancel" onclick="closeFamilyModal()">Cancel</button>
@@ -1158,7 +1380,7 @@
     </div>
   </div>
 
-  <!-- 3. SUBMIT REVIEW MODAL -->
+  <!-- 5. SUBMIT REVIEW MODAL -->
   <div id="reviewModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-head">
@@ -1193,7 +1415,7 @@
     </div>
   </div>
 
-  <!-- 4. CITIZEN REGISTRATION MODAL -->
+  <!-- 6. CITIZEN REGISTRATION MODAL -->
   <div id="registerModal" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-head">
