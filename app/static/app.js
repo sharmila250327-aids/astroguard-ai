@@ -1963,7 +1963,7 @@ async function markAllNotificationsRead(e) {
 
 async function loadGlobalAlerts() {
   try {
-    const data = await api("/api/collector/overview");
+    const data = await api("/api/alerts");
     const banner = $("globalAlertBanner");
     if (!banner) return;
     const active = (data.alerts || []).filter(a => a.is_active !== 0);

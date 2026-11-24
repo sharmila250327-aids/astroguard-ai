@@ -1814,6 +1814,13 @@ class AlertCreate(BaseModel):
     target_districts: str
     issued_by: Optional[str] = "District Collectorate & DEOC"
 
+@app.get("/api/alerts")
+def list_public_alerts():
+    """Returns active public directives and emergency red alerts for citizens, rescue squads, and collectors."""
+    with connect() as c:
+        rows = c.execute("SELECT * FROM alerts WHERE is_active=1 ORDER BY id DESC").fetchall()
+    return {"alerts": [dict(r) for r in rows]}
+
 @app.post("/api/collector/alerts")
 def create_alert(body: AlertCreate, user=Depends(require_role(["collector"]))):
     with connect() as c:
